@@ -1,0 +1,16 @@
+#%RAML 1.0 ResourceType
+
+post:
+  displayName: Create Account
+  description: This method is to create account in Salesforce
+  body:
+    application/json:
+      example: !include ../examples/accountCreateRequestExample.json
+  responses:
+    201:
+      body:
+        application/json:
+          example: !include ../examples/accountCreateResponseExample.json
+            
+
+        

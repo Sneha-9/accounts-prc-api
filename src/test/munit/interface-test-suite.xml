@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="interface-test-suite.xml" />
+	<munit:test name="interface-mthod-notallowed-testcase" doc:id="e49d74a2-3f55-4064-aa40-f3b85ded1bcc" description="Test" expectedErrorType="APIKIT:METHOD_NOT_ALLOWED">
+			<munit:behavior>
+				<munit-tools:mock-when doc:name="Mock APIKIT Router" doc:id="1aaae989-2b3b-4483-b2cb-dae69203bbdb" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="accounts-papi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://errorResponses/405errorMessage.dwl')]" />
+					<munit-tools:error typeId="APIKIT:METHOD_NOT_ALLOWED" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to accounts-papi-main" doc:id="a96cb20e-97e8-4e83-abc0-f10ebf359a84" name="accounts-papi-main" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-that doc:name="Assert that" doc:id="e6ab3f33-8d7e-43a7-abe7-c3b11617c9eb" expression="#[payload.returnCode]" is="#[MunitTools::equalTo(405)]" />
+			</munit:validation>
+		</munit:test>
+		
+		<munit:test name="interface-unsuported-mediatype-testcase" doc:id="6623e436-3c8b-43ca-a360-03ba91bf251c" description="Test" expectedErrorType="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+			<munit:behavior>
+				<munit-tools:mock-when doc:name="Mock APIKIT Router" doc:id="e6672ff8-6a7b-4e0d-937a-14d238db4780" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="accounts-papi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://errorResponses/415errorMessage.dwl')]" />
+					<munit-tools:error typeId="APIKIT:UNSUPPORTED_MEDIA_TYPE" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to accounts-papi-main" doc:id="034d4a83-82b9-4691-9014-963f01f7cf38" name="accounts-papi-main" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-that doc:name="Assert that" doc:id="8a71a6fe-f96f-4555-b364-61fc30b4cc2e" expression="#[payload.returnCode]" is="#[MunitTools::equalTo(415)]" />
+			</munit:validation>
+		</munit:test>
+		<munit:test name="interface-not-acceptable-testcase" doc:id="0b23e822-de81-4394-8f3f-6a81de63c657" description="Test" expectedErrorType="APIKIT:NOT_ACCEPTABLE">
+			<munit:behavior>
+				<munit-tools:mock-when doc:name="Mock APIKIT Router" doc:id="a61a6a7d-b5e1-4864-9095-f6ae50fb973e" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="accounts-papi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://errorResponses/406errorMessage.dwl')]" />
+					<munit-tools:error typeId="APIKIT:NOT_ACCEPTABLE" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to accounts-papi-main" doc:id="37c812ad-9d6b-4bbf-ab6f-383f3e21c898" name="accounts-papi-main" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-that doc:name="Assert that" doc:id="485547a5-427a-4932-9592-2217f60280ba" expression="#[payload.returnCode]" is="#[MunitTools::equalTo(406)]" />
+			</munit:validation>
+		</munit:test>
+		<munit:test name="interface-bad-request-testcase" doc:id="e60d8e90-e281-4f90-b61b-11b650dbfa85" description="Test" expectedErrorType="APIKIT:BAD_REQUEST">
+			<munit:behavior>
+				<munit-tools:mock-when doc:name="Mock APIKIT Router" doc:id="e9a4d88c-b6b9-4d58-9c07-b6ab9473a470" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="accounts-papi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://errorResponses/400errorMessage.dwl')]" />
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to accounts-papi-main" doc:id="21b9e2ce-8183-4c84-85da-97c159a120dd" name="accounts-papi-main" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-that doc:name="Assert that" doc:id="bec28df5-96e5-4795-bffb-01e6ad61023f" expression="#[payload.returnCode]" is="#[MunitTools::equalTo(400)]" />
+			</munit:validation>
+		</munit:test>
+
+
+</mule>

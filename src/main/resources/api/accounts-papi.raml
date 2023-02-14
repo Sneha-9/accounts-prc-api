@@ -1,0 +1,18 @@
+#%RAML 1.0
+title: Accounts Process API
+version: v1
+
+resourceTypes:
+  accountCreateDetails : !include /resourceType/accountCreateResourceType.raml
+
+
+traits:
+  errorTraits: !include /traits/errorResponsesTrait.raml
+  headersTraits: !include /traits/headersTrait.raml
+
+/accounts:
+  displayName: Accounts
+  description: This resource is used to create account in Salesforce
+  type: accountCreateDetails  
+
+

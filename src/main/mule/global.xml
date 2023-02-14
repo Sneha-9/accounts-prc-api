@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	<http:request-config name="Country_HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="cb3f5a03-0cd1-4255-846d-d765aec69976" >
+		<http:request-connection protocol="HTTPS" host="${countries.host}" />
+	</http:request-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="6f41e0ad-f8dd-478a-a894-069dd9b33c75" file="properties/${mule.env}-properties.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="776d0cc1-9a38-494e-88ac-f169dbc9d548" file="properties/${mule.env}-secure-properties.yaml" key="${mule.key}" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<http:request-config name="SFDC_HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="f0fc8091-4da7-4396-ac46-32e8857e51e3" >
+		<http:request-connection host="${sfdc.host}" />
+	</http:request-config>
+	<api-gateway:autodiscovery apiId="${api.id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="ff0cf6e9-a41b-484a-8c8b-22183354cf44" flowRef="accounts-papi-main" />
+</mule>

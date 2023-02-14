@@ -1,0 +1,24 @@
+#%RAML 1.0 Trait
+headers:
+  client_id:
+    displayName: Client Id
+    description: client id that needs to be passed for authenticating the API
+    type: string
+    required: true
+  client_secret:
+    displayName: Client Secret
+    description: client secret that needs to be passed for authenticating the API
+    type: string
+    required: true
+  channel:
+    displayName: Consumer Channel
+    description: channel name of the API
+    type: string
+    required: false
+  correlationId:
+    displayName: Correlation Id
+    description: Correlation ID used for tracking the API
+    
+
+
+

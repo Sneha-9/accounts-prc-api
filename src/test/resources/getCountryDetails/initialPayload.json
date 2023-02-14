@@ -1,0 +1,14 @@
+{
+  "name": "BINI",
+  "email": "abc1223@xyz.com",
+  "number": "1018",
+  "phone": "90312893213",
+  "fax": "21312311",
+  "billingAddress": {
+    "street": "High Street",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "postalCode": "500089",
+    "countryIso": "BW"
+  }
+}

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="implemetation-flow" doc:id="bf650399-3bae-451f-b4ad-6c2921e40420" >
+		<set-variable value="#[attributes.headers.correlationId]" doc:name="correlationId" doc:id="c3021a40-588c-4c68-8133-708d9c7ac373" variableName="correlationId"/>
+		<logger level="INFO" doc:name="LOG Start Flow " doc:id="9b817e99-d81f-4c43-a0b5-6b163ac7e3e8" message='#["Implementation call started in process api " ++ (vars.correlationId default "")]'/>
+		<set-variable value="#[attributes.header.correlationId]" doc:name="correlationId" doc:id="248f1eef-2466-4364-b718-fcc13af1e814" variableName="correlationId" />
+		<flow-ref doc:name="Refer to get-country-details" doc:id="58e6f8d4-f35b-4f45-93f3-25f65b02e16f" name="get-country-details" target="country"/>
+		<flow-ref doc:name="Refer to create-account-flow" doc:id="26363076-0618-43d8-873d-f1460263e8b3" name="create-account-flow"/>
+		<logger level="INFO" doc:name="LOG End Flow" doc:id="a1d0480e-c925-4e7f-9b44-ac37fb5888e9" message='#["Implementation Call ended in process API " ++ (vars.correlationId default "")]'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b59c16a7-431b-42b8-a182-929d1ca7b06a" >
+				<ee:transform doc:name="DW Set Error Message" doc:id="376949a8-8205-4c8f-a470-840528d33a7a" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"returnCode": 500,
+	"returnCodeDescription": error.muleMessage.payload.returnCodeDescription default error.description,
+	"status": "ERROR",
+	"correlationId": attributes.headers.correlationId
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="ERROR" doc:name="LOG Error" doc:id="795bc1c9-ecd4-482e-8f21-3249722f844d" message='#["Error occurred in process api " ++ (vars.correlationId default "")]'/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<sub-flow name="create-account-flow" doc:id="463caf5f-453b-46d6-8dd3-9ebefd3caa40" >
+		<logger level="INFO" doc:name="LOG Start Flow to create account in SF" doc:id="4fa78637-283f-42bd-b986-7d1ed74b823c" message='#["Call started to create account in SF " ++ (vars.correlationId default "")]'/>
+		<ee:transform doc:name="DW Prepare Create Account Payload" doc:id="d7fc6047-48eb-4f7f-b209-2ca558e7a215" >
+			<ee:message >
+				<ee:set-payload resource="dwlfiles/createAccountRequest.dwl" />
+			</ee:message>
+		</ee:transform>
+		<try doc:name="Try" doc:id="a9c41fbf-46c9-43fe-befc-1a109c40e746" >
+			<http:request method="POST" doc:name="POST\: Call To Create Account In SF" doc:id="a5bdd956-892f-4e3f-b2f2-af041063e77a" config-ref="SFDC_HTTP_Request_configuration" path="${sfdc.path}" target="createAccountResponse">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"client_id" : p('secure::sfdc.client_id'),
+	"client_secret": p('secure::sfdc.client_secret'),
+	correlationId :  (vars.correlationId default "")
+}]]]></http:headers>
+		</http:request>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="09bdb43f-6458-4683-ae9c-7c56e8939a2e" type="ANY">
+					<logger level="ERROR" doc:name="LOG Error while creating account in SF " doc:id="78adc744-1bef-4dfd-b05e-76ab5f4a8198" message='#["Error occurred in process api while creating account in SF " ++ (vars.correlationId default "")]'/>
+					<ee:transform doc:name="DW Set Error Message" doc:id="9f31a1d4-8b14-4b72-a8a1-5deb58c3fc06" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"returnCode": 500,
+	"returnCodeDescription": error.muleMessage.payload.returnCodeDescription default error.description,
+	"status": "ERROR",
+	"correlationId": attributes.headers.correlationId
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="DW Prepare Create Response From SF" doc:id="8965e601-f912-47bd-a21d-4e87e4bc6f8e">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+ {
+    "id": vars.createAccountResponse.items[0].id,
+    "status": 0,
+    "message": "Account already exists"
+ }]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+		<logger level="INFO" doc:name="LOG End Call To create account in SF" doc:id="06f6fc03-8ce9-4348-a6ae-abbabc3b06f6" message='#["Call ended to create account in SF " ++ (vars.correlationId default "")]'/>
+	</sub-flow>
+	<sub-flow name="get-country-details" doc:id="58330c45-3a53-48ef-bfa0-2585f16dabbe" >
+		<logger level="INFO" doc:name="LOG Start Call to Fetch Country Details" doc:id="6d0ee90e-99b9-4482-a448-a0f2ac961a7c" message='#["call started to fetch country details based on country code " ++ (vars.correlationId default "")]' />
+		<set-variable value="#[payload.billingAddress.countryIso default payload.shippingAddress.countryIso]" doc:name="countryCode" doc:id="ef27152c-31fa-4800-a5eb-30dfdcb60e6b" variableName="countryCode" />
+		<try doc:name="Try" doc:id="d3709567-df3d-419a-a451-ebb378046ecb" >
+			<http:request method="GET" doc:name="GET\: Call To Fetch Country Details" doc:id="d422e97c-41b0-4db1-9d9c-7b8f36433fe6" config-ref="Country_HTTP_Request_configuration" path="${countries.path}" >
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"client_id" : p('secure::countries.client_id'),
+	"client_secret": p('secure::countries.client_secret'),
+	correlationId : attributes.headers.correlationId
+}]]]></http:headers>
+				<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"code" : vars.countryCode
+}]]]></http:query-params>
+			</http:request>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2fe85f17-8dec-4dbc-bf84-641c53abf920" type="ANY">
+					<logger level="ERROR" doc:name="LOG Error While Fetching Country Details" doc:id="644c171b-ef93-40b6-aebb-6429fec1b5bc" message='#["Error occurred while fetching country details " ++ (vars.correlationId default "")]'/>
+					<ee:transform doc:name="DW Set Error Message" doc:id="6a2d1021-9d33-447e-8d95-b42c38f4462e" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"returnCode": 500,
+	"returnCodeDescription": error.muleMessage.payload.returnCodeDescription default error.description,
+	"status": "ERROR",
+	"correlationId": attributes.headers.correlationId
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="LOG End Call To Fetch Country Details" doc:id="c366c2e4-907f-430b-89e3-4362a8c87dc4" message='#["call ended to fetch country details " ++ (vars.correlationId default "")]' />
+	</sub-flow>
+</mule>

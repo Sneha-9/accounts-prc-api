@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="implementation-test-suite.xml" />
+	<munit:test name="implementation-success-testcase" doc:id="595619b4-4513-489d-a35e-9e1cef33f81a" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Get Country Call" doc:id="78e285f5-ed39-4b31-a18f-3ce3cc418d0b" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d422e97c-41b0-4db1-9d9c-7b8f36433fe6" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://getCountryDetails/getCountryDetailsResponse.json')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Create Account Call" doc:id="429374f4-7389-4af1-954d-a558fd9d5b81" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="a5bdd956-892f-4e3f-b2f2-af041063e77a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="createAccountResponse" value="#[output application/json --- readUrl('classpath://createAccountDetails/createAccountResponse.json')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="cf088d4c-757b-4db9-86c3-bf3bd159fe5b" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://getCountryDetails/initialPayload.json')]" />
+				<munit:attributes value='#[{"headers" : { "correlationId" : "123"}}]' />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to implemetation-flow" doc:id="48c75f58-4c62-463a-8603-4f4fe4805794" name="implemetation-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="60164d84-19ef-45ff-8c44-f7cbc2e96cdb" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="a1d0480e-c925-4e7f-9b44-ac37fb5888e9" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="implementation-error-duplicate-accounts-testcase" doc:id="96b1b988-8321-4363-91b6-5b747576ed71" description="Test">
+			<munit:behavior>
+				<munit-tools:mock-when doc:name="Mock Get Country Call" doc:id="72733870-6ae9-43a1-8449-17c72b0148b6" processor="http:request">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="d422e97c-41b0-4db1-9d9c-7b8f36433fe6" attributeName="doc:id" />
+					</munit-tools:with-attributes>
+					<munit-tools:then-return>
+						<munit-tools:payload value="#[output application/json --- readUrl('classpath://getCountryDetails/getCountryDetailsResponse.json')]" mediaType="application/json" />
+					</munit-tools:then-return>
+				</munit-tools:mock-when>
+				<munit-tools:mock-when doc:name="Mock Create Account Call" doc:id="4d2c7f7b-2db4-4879-b1f8-307980da282a" processor="http:request">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="a5bdd956-892f-4e3f-b2f2-af041063e77a" attributeName="doc:id" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="createAccountResponse" value="#[output application/json --- readUrl('classpath://createAccountDetails/createAccountDuplicateResponse.json')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<munit:set-event doc:name="Set Event" doc:id="547c391b-66bf-4571-988e-4ddec82ef492">
+					<munit:payload value="#[output application/json --- readUrl('classpath://getCountryDetails/initialPayload.json')]" />
+					<munit:attributes value='#[{"headers" : { "correlationId" : "123"}}]' />
+				</munit:set-event>
+				<flow-ref doc:name="Flow-ref to implemetation-flow" doc:id="9587b9be-96d8-4e90-9ff6-a1a239d11796" name="implemetation-flow" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:verify-call doc:name="Verify call" doc:id="8a77948d-34c6-4407-ba70-4cc786ef5113" processor="logger">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="a1d0480e-c925-4e7f-9b44-ac37fb5888e9" attributeName="doc:id" />
+					</munit-tools:with-attributes>
+				</munit-tools:verify-call>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="implementation-error-missing-fields-testcase" doc:id="ec56b764-6b35-4552-ba9d-4932e0757758" description="Test">
+			<munit:behavior>
+				<munit-tools:mock-when doc:name="Mock Get Country Call" doc:id="71eac350-2ee3-478d-8404-4fb3fd45a9d4" processor="http:request">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="d422e97c-41b0-4db1-9d9c-7b8f36433fe6" attributeName="doc:id" />
+					</munit-tools:with-attributes>
+					<munit-tools:then-return>
+						<munit-tools:payload value="#[output application/json --- readUrl('classpath://getCountryDetails/getCountryDetailsResponse.json')]" mediaType="application/json" />
+					</munit-tools:then-return>
+				</munit-tools:mock-when>
+				<munit-tools:mock-when doc:name="Mock Create Account Call" doc:id="12155330-3941-4c9b-ba43-7e55ca353cc4" processor="http:request">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="a5bdd956-892f-4e3f-b2f2-af041063e77a" attributeName="doc:id" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="createAccountResponse" value="#[output application/json --- readUrl('classpath://createAccountDetails/createAccountMissingFieldResponse.json')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<munit:set-event doc:name="Set Event" doc:id="286a32a4-e926-4a67-8b4a-9a8d1c4caf36">
+					<munit:payload value="#[output application/json --- readUrl('classpath://getCountryDetails/initialPayload.json')]" />
+					<munit:attributes value='#[{"headers" : { "correlationId" : "123"}}]' />
+				</munit:set-event>
+				<flow-ref doc:name="Flow-ref to implemetation-flow" doc:id="b713245a-77b4-46fb-8809-c6a5c7ee564a" name="implemetation-flow" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:verify-call doc:name="Verify call" doc:id="2b6dcc39-2b8c-4595-ba1f-c5a7dc9c0665" processor="logger">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="a1d0480e-c925-4e7f-9b44-ac37fb5888e9" attributeName="doc:id" />
+					</munit-tools:with-attributes>
+				</munit-tools:verify-call>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="implementation-error-create-call-testcase" doc:id="942642b0-046e-481f-9946-10796807ed64" description="Test" expectedErrorType="ANY">
+			<munit:behavior>
+				<munit-tools:mock-when doc:name="Mock Get Country Call" doc:id="f69bc6dc-edc9-4a2a-a93c-7f0686c68b6c" processor="http:request">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="d422e97c-41b0-4db1-9d9c-7b8f36433fe6" attributeName="doc:id" />
+					</munit-tools:with-attributes>
+					<munit-tools:then-return>
+						<munit-tools:payload value="#[output application/json --- readUrl('classpath://getCountryDetails/getCountryDetailsResponse.json')]" mediaType="application/json" />
+					</munit-tools:then-return>
+				</munit-tools:mock-when>
+				<munit-tools:mock-when doc:name="Mock Create Account Call" doc:id="2b6e37cb-4856-42d6-911a-f7cce1d04e8c" processor="http:request">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="a5bdd956-892f-4e3f-b2f2-af041063e77a" attributeName="doc:id" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="ANY" />
+					<munit-tools:variables >
+						<munit-tools:variable key="createAccountResponse" value="#[output application/json --- readUrl('classpath://createAccountDetails/createAccountResponse.json')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<munit:set-event doc:name="Set Event" doc:id="a070464c-031b-4e96-990d-51a18d43d2af">
+					<munit:payload value="#[output application/json --- readUrl('classpath://getCountryDetails/initialPayload.json')]" />
+					<munit:attributes value='#[{"headers" : { "correlationId" : "123"}}]' />
+				</munit:set-event>
+				<flow-ref doc:name="Flow-ref to implemetation-flow" doc:id="6473c7ee-a19e-453d-b99c-a4c27792d192" name="implemetation-flow" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:verify-call doc:name="Verify call" doc:id="5c6627cb-c955-465a-91ea-148be3b1884a" processor="logger">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="a1d0480e-c925-4e7f-9b44-ac37fb5888e9" attributeName="doc:id" />
+					</munit-tools:with-attributes>
+				</munit-tools:verify-call>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="implementation-error-get-call-testcase" doc:id="6c696e29-ced0-422f-99a2-411f007f6af9" description="Test" expectedErrorType="ANY">
+			<munit:behavior>
+				<munit-tools:mock-when doc:name="Mock Get Country Call" doc:id="a57e8e6d-7741-46e6-ab8f-38d0ccacd4a7" processor="http:request">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="d422e97c-41b0-4db1-9d9c-7b8f36433fe6" attributeName="doc:id" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://getCountryDetails/getCountryDetailsResponse.json')]" mediaType="application/json" />
+					<munit-tools:error typeId="ANY" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+				<munit-tools:mock-when doc:name="Mock Create Account Call" doc:id="12446e3f-c611-4b63-8f71-b98bae99cd00" processor="http:request">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="a5bdd956-892f-4e3f-b2f2-af041063e77a" attributeName="doc:id" />
+					</munit-tools:with-attributes>
+					<munit-tools:then-return>
+						<munit-tools:error typeId="ANY" />
+						<munit-tools:variables>
+							<munit-tools:variable key="createAccountResponse" value="#[output application/json --- readUrl('classpath://createAccountDetails/createAccountResponse.json')]" mediaType="application/json" encoding="UTF-8" />
+						</munit-tools:variables>
+					</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<munit:set-event doc:name="Set Event" doc:id="2c956e0f-2653-4c92-a41e-bddd34f2ea77">
+					<munit:payload value="#[output application/json --- readUrl('classpath://getCountryDetails/initialPayload.json')]" />
+					<munit:attributes value='#[{"headers" : { "correlationId" : "123"}}]' />
+				</munit:set-event>
+				<flow-ref doc:name="Flow-ref to implemetation-flow" doc:id="84bf0a9c-2b27-41be-8927-75783e10be19" name="implemetation-flow" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:verify-call doc:name="Verify call" doc:id="585f18b0-9fb9-45c3-b1f4-991d1d04474d" processor="logger">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="a1d0480e-c925-4e7f-9b44-ac37fb5888e9" attributeName="doc:id" />
+					</munit-tools:with-attributes>
+				</munit-tools:verify-call>
+			</munit:validation>
+		</munit:test>
+
+
+</mule>
